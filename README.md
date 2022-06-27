@@ -34,7 +34,7 @@ The structure of the whole slide image dataset to run the code.
 Generate configuration file for the dataset.
 
 ```
-Run dataset/configure_dataset.py to configure the dataset.
+python dataset/configure_dataset.py
 ```
 
 ### Train
