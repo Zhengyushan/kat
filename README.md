@@ -4,8 +4,10 @@ This is a PyTorch implementation of the paper [KAT]( ):
 
 ### Data preparation
 1. Data structure
+   
 The structure of the whole slide image dataset to run the code.
-We take a lung cancer datset collected from TCGA as the example.
+
+Take a lung cancer datset collected from TCGA as the example.
 ```
 ./data                                                              # The directory of the data.
 ├─ TCGA-55-8510-01Z-00-DX1.BB1EAC72-6215-400B-BCBF-E3D51A60182D     # The directory for a slide.
@@ -30,7 +32,8 @@ We take a lung cancer datset collected from TCGA as the example.
 ├─ TCGA-44-3919-01A-01-BS1.9251d6ad-dab8-42fd-836d-1b18e5d2afed
 └─ ...
 ```
-2. Generate configuration file for the dataset
+1. Generate configuration file for the dataset.
+
 Run dataset/configure_dataset.py to configure the dataset.
 
 ### Train
