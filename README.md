@@ -3,12 +3,11 @@
 This is a PyTorch implementation of the paper [KAT]( ):
 
 ### Data preparation
-1. Data structure
    
 The structure of the whole slide image dataset to run the code.
 
-Take a lung cancer datset collected from TCGA as the example.
 ```
+# Take a lung cancer datset collected from TCGA as the example.
 ./data                                                              # The directory of the data.
 ├─ TCGA-55-8510-01Z-00-DX1.BB1EAC72-6215-400B-BCBF-E3D51A60182D     # The directory for a slide.
 │  ├─ Large                                                         # The directory of image tiles in Level 0 (40X lens).
@@ -32,9 +31,11 @@ Take a lung cancer datset collected from TCGA as the example.
 ├─ TCGA-44-3919-01A-01-BS1.9251d6ad-dab8-42fd-836d-1b18e5d2afed
 └─ ...
 ```
-1. Generate configuration file for the dataset.
+Generate configuration file for the dataset.
 
+```
 Run dataset/configure_dataset.py to configure the dataset.
+```
 
 ### Train
 Run the codes on a single GPU:
@@ -60,7 +61,7 @@ done
 
 ```
 
-Run the codes multiple GPUs:
+Run the codes on multiple GPUs:
 ```
 CONFIG_FILE='configs/tcga_lung.yaml'
 WOKERS=8
