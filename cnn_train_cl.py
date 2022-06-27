@@ -99,7 +99,7 @@ parser.add_argument('--weighted-sample', action='store_true')
 parser.add_argument('--redo', action='store_true', default=False,
                     help='Ignore all the existing results and caches.')
 
-# moco specific configs:
+# byol specific configs:
 parser.add_argument('--hidden-dim', default=2048, type=int,
                     help='feature dimension (default: 2048)')
 parser.add_argument('--pred-dim', default=256, type=int,

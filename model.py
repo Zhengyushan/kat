@@ -1,3 +1,9 @@
+#!/usr/bin/env python
+# -*- coding:utf-8 -*-
+# date: 2022/06
+# author:Yushan Zheng
+# emai:yszheng@buaa.edu.cn
+
 import torch
 from torch import nn, einsum
 from einops import rearrange, repeat

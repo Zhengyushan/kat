@@ -1,0 +1,46 @@
+DATA:
+  LOCAL_SLIDE_DIR: '/share/slides/TCGA_Lung'
+  DATASET_CONFIG_DIR: './dataset/tcga_lung'
+  DATA_SAVE_DIR: './data/tcga_lung'
+  LABEL_ID: 1 # 1 for subtype task, 2 for binary task
+  TEST_RATIO: 0.3
+  FOLD_NUM: 5
+IMAGE:
+  LEVEL: 1 # 20X lens
+  MASK_LEVEL: 3 
+  PATCH_SIZE: 224
+  LOCAL_TILE_SIZE: 256
+SAMPLE:
+  POS_RAT: 0.5
+  NEG_RAT: 0.05
+  INTENSITY_THRED: 25
+  STEP: 112
+  MAX_PER_CLASS: 500
+  SAVE_MASK: false # reserved config for segmentation
+CNN:
+  ARCH: 'resnet50'
+  PRETRAINED: false
+  FREEZE_FEAT: true
+  CONTRASTIVE: true
+  BYOL:
+    HIDDEN_DIM: 2048
+    PRE_DIM: 256
+    M_DECAY: 0.99
+    FIX_PRED_LR: True
+FEATURE:
+  STEP: 224
+  MAX_NODES: 4096
+VIT:
+  DEPTH: 4
+  HEADS: 8
+  DIM: 256
+  MLP_DIM: 512
+  HEAD_DIM: 64
+  POOL: 'cls'
+KAT:
+  KERNEL_NUM : 64
+  PATCH_PER_KERNEL : 144
+  BYOL:
+    PROJECTOR_DIM : 256
+    NODE_AUG : 0.6
+    SL_WEIGHT: 0.1

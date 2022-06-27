@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding:utf-8 -*-
-# date: 2020/12
-# author:yushan zheng
+# date: 2022/06
+# author:Yushan Zheng
 # emai:yszheng@buaa.edu.cn
 
 import os
@@ -12,6 +12,8 @@ import math
 # 'Large':40X, 'Medium':20X, 'Small':10X, 'Overview':5X
 scales = ['Large', 'Medium', 'Small', 'Overview']
 
+# The default number of patches for a kernel
+PATCH_NUMBER_PER_ANCHOR = [36, 64, 100, 144, 256, 400]
 
 def merge_config_to_args(args, cfg):
     # dirs
@@ -108,7 +110,6 @@ def get_data_list_path(args):
                                 int(args.test_ratio * 100))
 
     return os.path.join(args.list_dir, prefix)
-
 
 def get_cnn_path(args):
     prefix = get_data_list_path(args)

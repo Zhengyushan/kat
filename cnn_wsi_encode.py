@@ -64,7 +64,6 @@ parser.add_argument('--batch-size', type=int, default=256)
 parser.add_argument('--invert-rgb', action='store_true', default=False,
                     help='Adjust the format between RGB and BGR')
 
-PATCH_NUMBER_PER_ANCHOR = [36, 64, 100, 144, 256, 400]
 
 def main(args):
     if args.cfg:

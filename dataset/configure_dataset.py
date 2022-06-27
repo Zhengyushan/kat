@@ -1,5 +1,18 @@
+#!/usr/bin/env python
+# -*- coding:utf-8 -*-
+# date: 2022/06
+# author:Yushan Zheng
+# emai:yszheng@buaa.edu.cn
+
 import pickle
 import os
+
+'''
+The script to configure the dataset for running the code.
+Take these TCGA Slides as the example.
+You may need to download the slides and convert to into the 
+experimental files in advance. Please refer to xxx.
+'''
 
 # TCGA Lung dataset
 data_list_dir = 'tcga_lung'
