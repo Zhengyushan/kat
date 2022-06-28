@@ -161,8 +161,12 @@ def main_worker(gpu, ngpus_per_node, args):
         print("Use GPU: {} for training".format(args.gpu))
 
     if args.distributed:
-        if args.dist_url == "env://" and args.rank == -1:
-            args.rank = int(os.environ["RANK"])
+        if args.rank == -1:
+            if args.dist_url == "env://":
+                args.rank = int(os.environ["RANK"])
+            elif 'SLURM_PROCID' in os.environ:
+                args.rank = int(os.environ['SLURM_PROCID'])
+                
         if args.multiprocessing_distributed:
             # For multiprocessing distributed training, rank needs to be the
             # global rank among all the processes
@@ -178,7 +182,7 @@ def main_worker(gpu, ngpus_per_node, args):
             patch_per_kernel=args.npk,
             task_id=args.label_id,
             max_kernel_num=args.kn,
-            node_aug=False,
+            node_aug=args.node_aug,
             two_augments=False
             )
 
