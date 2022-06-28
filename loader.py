@@ -67,8 +67,11 @@ class SlideLocalTileDataset(data.Dataset):
         img = extract_tile(self.im_dir, self.ts, self.pos[index][1], self.pos[index][0], self.imsize, self.imsize)
         if len(img) == 0:
             img = np.ones((self.imsize, self.imsize, 3), np.uint8) * 240
-        if self.inv_rgb:
-            img = img[:,:,[2,1,0]]
+        # The default format of opencv is BGR but PIL.Image is RGB. 
+        # So, a cvtColor is required here, to make sure the color 
+        # channels are consistent with the trained model.
+        if not self.inv_rgb: 
+            img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         img = Image.fromarray(img).convert('RGB')
         img = self.transform(img)
 

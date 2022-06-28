@@ -22,7 +22,8 @@ parser.add_argument('--cfg', type=str, default='',
 parser.add_argument('--num-workers', type=int, default=8,
                     help='The processors used for parallel sampling.')
 parser.add_argument('--invert-rgb', action='store_true', default=False,
-                    help='Adjust the format between RGB and BGR')
+                    help='Adjust the format between RGB and BGR.\
+                        The default color format of the patch is BGR')
 
 def main(args):
     np.random.seed(1)

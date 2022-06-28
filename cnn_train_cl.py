@@ -33,11 +33,12 @@ import shutil
 import time
 import warnings
 
+import torch
+import torchvision.transforms as transforms
 from utils import *
 from loader import CLPatchesDataset, DistributedWeightedSampler
 from efficientnet_pytorch import EfficientNet
-import byol.builder
-import byol.transforms
+from byol import BYOL, GaussianBlur
 
 
 parser = argparse.ArgumentParser(description='PyTorch ImageNet Training')
@@ -218,7 +219,7 @@ def main_worker(gpu, ngpus_per_node, args):
             model = models.__dict__[args.arch](num_classes=args.num_classes)
 
     # BYOL
-    learner = byol.builder.BYOL(model,args.hidden_dim, args.pred_dim, args.momentum_decay)
+    learner = BYOL(model,args.hidden_dim, args.pred_dim, args.momentum_decay)
     init_lr = args.lr * args.batch_size / 256
 
     if args.distributed:
@@ -274,7 +275,7 @@ def main_worker(gpu, ngpus_per_node, args):
             transforms.ColorJitter(0.4, 0.4, 0.4, 0.1)  # not strengthened
         ], p=0.8),
         transforms.RandomGrayscale(p=0.2),
-        transforms.RandomApply([byol.transforms.GaussianBlur([.1, 2.])], p=0.5),
+        transforms.RandomApply([GaussianBlur([.1, 2.])], p=0.5),
         transforms.RandomHorizontalFlip(),
         transforms.ToTensor(),
     ])
@@ -310,7 +311,7 @@ def main_worker(gpu, ngpus_per_node, args):
         num_workers=args.workers, pin_memory=True, sampler=train_sampler
     )
     val_loader = torch.utils.data.DataLoader(
-        train_set, batch_size=args.batch_size, shuffle=False,
+        val_set, batch_size=args.batch_size, shuffle=False,
         num_workers=args.workers, pin_memory=True, sampler=None
     )
     if not os.path.exists(model_save_dir):

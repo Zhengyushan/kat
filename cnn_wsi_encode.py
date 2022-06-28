@@ -62,7 +62,8 @@ parser.add_argument('--multiprocessing-distributed', action='store_true', defaul
 
 parser.add_argument('--batch-size', type=int, default=256)
 parser.add_argument('--invert-rgb', action='store_true', default=False,
-                    help='Adjust the format between RGB and BGR')
+                    help='Adjust the format between RGB and BGR\
+                        The default color format of the patch is BGR')
 
 
 def main(args):
