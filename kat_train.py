@@ -83,8 +83,8 @@ def arg_parse():
     parser.add_argument('--prefix-name', type=str, default='',
                         help='A prefix for the model name.')
     
-    parser.add_argument('--node-aug', type=float, default=None,)
-
+    parser.add_argument('--node-aug', default=False, action='store_true',
+                        help='Randomly reduce the nodes for data augmentation》')
 
     return parser.parse_args()
 
@@ -184,9 +184,6 @@ def main_worker(gpu, ngpus_per_node, args):
 
     args.input_dim = train_set.get_feat_dim()
     # create model
-    if not os.path.exists(graph_model_path):
-        os.makedirs(graph_model_path)
-
     model = KAT(
         num_pk=args.npk,
         patch_dim=args.input_dim,
@@ -312,9 +309,13 @@ def main_worker(gpu, ngpus_per_node, args):
 
         return 0
 
-    with open(graph_model_path + '.csv', 'a') as f:
-        f.write('epoch, train acc, V, val acc, val w-auc, val m-auc, val w-f1, val m-f1 ,\
-             T, tet acc, test w-auc, test m-auc, test w-f1, test m-f1, \n')
+    if not args.multiprocessing_distributed or (args.multiprocessing_distributed
+                                                    and args.rank == 0):    
+        if not os.path.exists(graph_model_path):
+            os.makedirs(graph_model_path)
+        with open(graph_model_path + '.csv', 'a') as f:
+            f.write('epoch, train acc, V, val acc, val w-auc, val m-auc, val w-f1, val m-f1 ,\
+                T, tet acc, test w-auc, test m-auc, test w-f1, test m-f1, \n')
 
     for epoch in range(args.start_epoch, args.num_epochs):
         begin_time = time.time()
