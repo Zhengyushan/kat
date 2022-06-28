@@ -54,7 +54,7 @@ do
     python cnn_wsi_encode.py --cfg $CONFIG_FILE --fold $FOLD\
         --batch-size 512 --num-workers $WOKERS --gpu $GPU
 
-    python kat_train.py --cfg $CONFIG_FILE --fold $FOLD\
+    python kat_train.py --cfg $CONFIG_FILE --fold $FOLD --node-aug\
         --num-epochs 101 --batch-size 32 --num-workers $WOKERS  --weighted-sample\
         --eval-freq 5 --gpu $GPU
 done 
@@ -80,7 +80,7 @@ do
         --batch-size 512 --num-workers $WOKERS\
         --dist-url 'tcp://localhost:10001' --multiprocessing-distributed --world-size $WORLD_SIZE --rank 0
 
-     python kat_train.py --cfg $CONFIG_FILE --fold $FOLD\
+     python kat_train.py --cfg $CONFIG_FILE --fold $FOLD --node-aug\
         --num-epochs 101 --batch-size 128 --num-workers $WOKERS  --weighted-sample --eval-freq 5\
         --dist-url 'tcp://localhost:10001' --multiprocessing-distributed --world-size $WORLD_SIZE --rank 0
 done
