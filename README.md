@@ -1,6 +1,6 @@
 ## KAT: kernel attention Transformer for histopathology whole slide image classification
 
-This is a PyTorch implementation of the paper [KAT]( ):
+This is a PyTorch implementation of the paper [KAT](https://arxiv.org/pdf/2206.13156.pdf):
 
 ### Data preparation
    
