@@ -314,10 +314,11 @@ def main_worker(gpu, ngpus_per_node, args):
         val_set, batch_size=args.batch_size, shuffle=False,
         num_workers=args.workers, pin_memory=True, sampler=None
     )
-    if not os.path.exists(model_save_dir):
-        os.makedirs(model_save_dir)
+    
     if not args.multiprocessing_distributed or (args.multiprocessing_distributed
                                                     and args.rank == 0):
+        if not os.path.exists(model_save_dir):
+            os.makedirs(model_save_dir)                                            
         with open(model_save_dir + '.csv', 'a') as f:
             f.write('epoch, train loss, val loss\n')
 
