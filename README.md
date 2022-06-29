@@ -48,7 +48,7 @@ python cnn_sample.py --cfg $CONFIG_FILE --num-workers $WOKERS
 for((FOLD=0;FOLD<5;FOLD++)); 
 do
     python cnn_train_cl.py --cfg $CONFIG_FILE --fold $FOLD\
-        --epochs 21 --batch-size 100 --num-workers $WOKERS --weighted-sample\
+        --epochs 21 --batch-size 100 --workers $WOKERS --weighted-sample\
         --fix-pred-lr --eval-freq 2 --gpu $GPU
 
     python cnn_wsi_encode.py --cfg $CONFIG_FILE --fold $FOLD\
@@ -72,7 +72,7 @@ python cnn_sample.py --cfg $CONFIG_FILE --num-workers $WOKERS
 for((FOLD=0;FOLD<5;FOLD++)); 
 do
     python cnn_train_cl.py --cfg $CONFIG_FILE --fold $FOLD\
-        --epochs 21 --batch-size 400 --num-workers $WOKERS --weighted-sample\
+        --epochs 21 --batch-size 400 workers $WOKERS --weighted-sample\
         --fix-pred-lr --eval-freq 2\
         --dist-url 'tcp://localhost:10001' --multiprocessing-distributed --world-size $WORLD_SIZE --rank 0
 
