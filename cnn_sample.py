@@ -21,6 +21,8 @@ parser.add_argument('--cfg', type=str, default='',
 
 parser.add_argument('--num-workers', type=int, default=8,
                     help='The processors used for parallel sampling.')
+parser.add_argument('--ignore-annotation', action='store_true', default=False,
+                    help='Ignore annotations when sampling.')
 parser.add_argument('--invert-rgb', action='store_true', default=False,
                     help='Adjust the format between RGB and BGR.\
                         The default color format of the patch is BGR')
@@ -80,17 +82,17 @@ def sampling_slide(slide_info):
 
     slide_path = os.path.join(args.slide_dir, slide_rpath)
     image_dir = os.path.join(slide_path, scales[args.level])
-
+    
     tissue_mask = get_tissue_mask(cv2.imread(
             os.path.join(slide_path, 'Overview.jpg')))
+    
     content_mat = cv2.blur(tissue_mask, ksize=args.filter_size, anchor=(0, 0))
     content_mat = content_mat[::args.srstep, ::args.srstep]
     
     mask_path = os.path.join(slide_path, 'AnnotationMask.png')
-
     # Use the annotation to decide the label of the patch if annotation is available.
     # Otherwise, assign a psudo-label to the patch based on the WSI label it belongs to.
-    if os.path.exists(mask_path):
+    if not args.ignore_annotation and os.path.exists(mask_path):
         mask = cv2.imread(os.path.join(slide_path, 'AnnotationMask.png'), 0)
         positive_mat = cv2.blur(
             (mask > 0)*255, ksize=args.filter_size, anchor=(0, 0))

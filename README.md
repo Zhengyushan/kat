@@ -41,21 +41,21 @@ python dataset/configure_dataset.py
 Run the codes on a single GPU:
 ```
 CONFIG_FILE='configs/tcga_lung.yaml'
-WOKERS=8
+WORKERS=8
 GPU=0
 
-python cnn_sample.py --cfg $CONFIG_FILE --num-workers $WOKERS
+python cnn_sample.py --cfg $CONFIG_FILE --num-workers $WORKERS
 for((FOLD=0;FOLD<5;FOLD++)); 
 do
     python cnn_train_cl.py --cfg $CONFIG_FILE --fold $FOLD\
-        --epochs 21 --batch-size 100 --workers $WOKERS --weighted-sample\
+        --epochs 21 --batch-size 100 --workers $WORKERS --weighted-sample\
         --fix-pred-lr --eval-freq 2 --gpu $GPU
 
     python cnn_wsi_encode.py --cfg $CONFIG_FILE --fold $FOLD\
-        --batch-size 512 --num-workers $WOKERS --gpu $GPU
+        --batch-size 512 --num-workers $WORKERS --gpu $GPU
 
     python kat_train.py --cfg $CONFIG_FILE --fold $FOLD --node-aug\
-        --num-epochs 101 --batch-size 32 --num-workers $WOKERS  --weighted-sample\
+        --num-epochs 101 --batch-size 32 --num-workers $WORKERS  --weighted-sample\
         --eval-freq 5 --gpu $GPU
 done 
 
@@ -64,24 +64,24 @@ done
 Run the codes on multiple GPUs:
 ```
 CONFIG_FILE='configs/tcga_lung.yaml'
-WOKERS=8
+WORKERS=8
 WORLD_SIZE=1
 
-python cnn_sample.py --cfg $CONFIG_FILE --num-workers $WOKERS
+python cnn_sample.py --cfg $CONFIG_FILE --num-workers $WORKERS
 
 for((FOLD=0;FOLD<5;FOLD++)); 
 do
     python cnn_train_cl.py --cfg $CONFIG_FILE --fold $FOLD\
-        --epochs 21 --batch-size 400 workers $WOKERS --weighted-sample\
+        --epochs 21 --batch-size 400 workers $WORKERS --weighted-sample\
         --fix-pred-lr --eval-freq 2\
         --dist-url 'tcp://localhost:10001' --multiprocessing-distributed --world-size $WORLD_SIZE --rank 0
 
     python cnn_wsi_encode.py --cfg $CONFIG_FILE --fold $FOLD\
-        --batch-size 512 --num-workers $WOKERS\
+        --batch-size 512 --num-workers $WORKERS\
         --dist-url 'tcp://localhost:10001' --multiprocessing-distributed --world-size $WORLD_SIZE --rank 0
 
      python kat_train.py --cfg $CONFIG_FILE --fold $FOLD --node-aug\
-        --num-epochs 101 --batch-size 128 --num-workers $WOKERS  --weighted-sample --eval-freq 5\
+        --num-epochs 101 --batch-size 128 --num-workers $WORKERS  --weighted-sample --eval-freq 5\
         --dist-url 'tcp://localhost:10001' --multiprocessing-distributed --world-size $WORLD_SIZE --rank 0
 done
 
