@@ -216,10 +216,11 @@ def main_worker(gpu, ngpus_per_node, args):
             model = models.__dict__[args.arch](pretrained=True)
         else:
             print("=> creating model '{}'".format(args.arch))
-            model = models.__dict__[args.arch](num_classes=args.num_classes)
+            model = models.__dict__[args.arch](num_classes=args.num_classes,
+                zero_init_residual=True)
 
     # BYOL
-    learner = BYOL(model,args.hidden_dim, args.pred_dim, args.momentum_decay)
+    learner = BYOL(model, args.hidden_dim, args.pred_dim, args.momentum_decay)
     init_lr = args.lr * args.batch_size / 256
 
     if args.distributed:
@@ -248,12 +249,13 @@ def main_worker(gpu, ngpus_per_node, args):
         learner = learner.cuda(args.gpu)
         
     if args.fix_pred_lr:
-            optim_params = [{'params': learner.module.online_encoder.parameters() if args.distributed
+            optim_params = [{'params': learner.module.online_encoder.parameters() if args.distributed\
                                   else learner.online_encoder.parameters(), 'fix_lr': False},
-                        {'params': learner.module.predictor.parameters() if args.distributed
+                        {'params': learner.module.predictor.parameters() if args.distributed\
                               else learner.predictor.parameters(), 'fix_lr': True}]
     else:
-        optim_params = model.parameters()
+        optim_params = learner.module.parameters() if args.distributed\
+                                  else learner.parameters()
     optimizer = torch.optim.SGD(optim_params, init_lr,
                                 momentum=args.momentum,
                                 weight_decay=args.weight_decay)
@@ -270,13 +272,14 @@ def main_worker(gpu, ngpus_per_node, args):
     valdir = os.path.join(get_data_list_path(args), args.fold_name, 'val')
     
     train_transforms = transforms.Compose([
-        transforms.RandomResizedCrop(224, scale=(0.2, 1.)),
+        transforms.RandomResizedCrop(224, scale=(0.8, 1.)),
         transforms.RandomApply([
             transforms.ColorJitter(0.4, 0.4, 0.4, 0.1)  # not strengthened
         ], p=0.8),
-        transforms.RandomGrayscale(p=0.2),
-        transforms.RandomApply([GaussianBlur([.1, 2.])], p=0.5),
+        # transforms.RandomGrayscale(p=0.2),
+        transforms.RandomApply([GaussianBlur([.1, 2.])], p=0.3),
         transforms.RandomHorizontalFlip(),
+        transforms.RandomVerticalFlip(),
         transforms.ToTensor(),
     ])
     
@@ -318,7 +321,7 @@ def main_worker(gpu, ngpus_per_node, args):
     if not args.multiprocessing_distributed or (args.multiprocessing_distributed
                                                     and args.rank == 0):
         if not os.path.exists(model_save_dir):
-            os.makedirs(model_save_dir)                                            
+            os.makedirs(model_save_dir)
         with open(model_save_dir + '.csv', 'a') as f:
             f.write('epoch, train loss, val loss\n')
 
@@ -373,7 +376,6 @@ def train(train_loader, model, criterion, optimizer, epoch, args):
 
     # switch to train mode
     model.train()
-
     end = time.time()
     for i, (images_one, images_two) in enumerate(train_loader):
         # measure data loading time

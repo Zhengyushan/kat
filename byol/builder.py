@@ -23,9 +23,7 @@ class BYOL(nn.Module):
 
         self.momentum = momentum
         # create the online encoder
-        # num_classes is the output fc dimension, zero-initialize last BNs
         self.online_encoder = base_encoder
-        # self.online_encoder = base_encoder(num_classes=pred_dim, zero_init_residual=True)
 
         # build a 3-layer projector
         self.online_encoder = replace_fc_with_mlp(self.online_encoder, hidden_dim, pred_dim)
