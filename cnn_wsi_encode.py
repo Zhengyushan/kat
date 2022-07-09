@@ -216,7 +216,13 @@ def main_worker(gpu, ngpus_per_node, args):
         slide_data = pickle.load(f)
     slide_list = slide_data['train'] + slide_data['test']
     
+    current_slide_list = []
     for s_id, s_info in enumerate(slide_list):
+        graph_save_path = os.path.join(args.wsi_feat_dir, '{}.pkl'.format(s_info[0]))
+        if not os.path.exists(graph_save_path):
+            current_slide_list.append((s_id, s_info))
+
+    for s_id, s_info in current_slide_list:
         porc_start = time.time()
         s_guid, s_rpath, s_label = s_info
         if args.distributed:
