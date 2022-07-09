@@ -220,9 +220,9 @@ def main_worker(gpu, ngpus_per_node, args):
     for s_id, s_info in enumerate(slide_list):
         graph_save_path = os.path.join(args.wsi_feat_dir, '{}.pkl'.format(s_info[0]))
         if not os.path.exists(graph_save_path):
-            current_slide_list.append((s_id, s_info))
+            current_slide_list.append(s_info)
 
-    for s_id, s_info in current_slide_list:
+    for s_id, s_info in enumerate(current_slide_list):
         porc_start = time.time()
         s_guid, s_rpath, s_label = s_info
         if args.distributed:
@@ -314,8 +314,8 @@ def main_worker(gpu, ngpus_per_node, args):
                 }
             pickle.dump(graph, f)
 
-        print('Processer #{}: '.format(args.rank),
-            s_id,s_guid, '#patch:', patch_pos.shape[0], 
+        print('Processer #{}: {}/{} {}'.format(args.rank, s_id, len(current_slide_list), s_guid),
+            '#patch:', patch_pos.shape[0], 
             '#kernel:', kns,
             'df:', down_factor, 
             'labels:', graph_label,
