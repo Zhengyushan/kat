@@ -247,17 +247,15 @@ def extract_tile(image_dir, tile_size, x, y, width, height):
     return output
 
 
-def get_tissue_mask(wsi_thumbnail, scale=30):
-    hsv = cv2.cvtColor(wsi_thumbnail, cv2.COLOR_RGB2HSV)
-    _, tissue_mask = cv2.threshold(hsv[:, :, 2], 210, 255, cv2.THRESH_BINARY_INV)
-    tissue_mask[hsv[:, :, 0]<10]=0
+def get_tissue_mask(temp_image, scale=30):
+    image_hsv = cv2.cvtColor(temp_image, cv2.COLOR_BGR2HSV)
+    _, tissueMask = cv2.threshold(image_hsv[:, :, 1],0,255,cv2.THRESH_BINARY+cv2.THRESH_OTSU)
 
     element = cv2.getStructuringElement(
-        cv2.MORPH_ELLIPSE, (2 * scale + 1, 2 * scale + 1)
-        )
-    tissue_mask = cv2.morphologyEx(tissue_mask, cv2.MORPH_CLOSE, element)
+        cv2.MORPH_ELLIPSE, (2 * scale + 1, 2 * scale + 1))
+    tissueMask = cv2.morphologyEx(tissueMask, cv2.MORPH_CLOSE, element)
 
-    return tissue_mask
+    return tissueMask
 
 
 def connectivity_and_dist(positions, down_factor=1):
