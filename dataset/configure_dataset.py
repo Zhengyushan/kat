@@ -10,7 +10,7 @@ import os
 '''
 The script to configure the dataset for running the code.
 Take these TCGA Slides as the example.
-You may need to these Slides to the experimental files. 
+You may need to convert these slides to the experimental files. 
 Please refer to https://github.com/zhengyushan/tcga2tile.
 '''
 
