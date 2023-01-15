@@ -82,7 +82,7 @@ def sampling_slide(slide_info):
 
     slide_path = os.path.join(args.slide_dir, slide_rpath)
     image_dir = os.path.join(slide_path, scales[args.level])
-    
+
     tissue_mask = get_tissue_mask(cv2.imread(
             os.path.join(slide_path, 'Overview.jpg')))
     

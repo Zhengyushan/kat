@@ -7,7 +7,7 @@ This is a PyTorch implementation of the paper [KAT](https://arxiv.org/pdf/2206.1
 The structure of the whole slide image dataset to run the code.
 
 ```
-# Take a lung cancer datset collected from TCGA as the example.
+# Take a lung cancer dataset collected from TCGA as the example.
 ./data                                                              # The directory of the data.
 ├─ TCGA-55-8510-01Z-00-DX1.BB1EAC72-6215-400B-BCBF-E3D51A60182D     # The directory for a slide.
 │  ├─ Large                                                         # The directory of image tiles in Level 0 (40X lens).
@@ -55,7 +55,7 @@ do
         --batch-size 512 --num-workers $WORKERS --gpu $GPU
 
     python kat_train.py --cfg $CONFIG_FILE --fold $FOLD --node-aug\
-        --num-epochs 101 --batch-size 32 --num-workers $WORKERS  --weighted-sample\
+        --num-epochs 200 --batch-size 32 --num-workers $WORKERS  --weighted-sample\
         --eval-freq 5 --gpu $GPU
 done 
 
@@ -80,11 +80,29 @@ do
         --batch-size 512 --num-workers $WORKERS\
         --dist-url 'tcp://localhost:10001' --multiprocessing-distributed --world-size $WORLD_SIZE --rank 0
 
-     python kat_train.py --cfg $CONFIG_FILE --fold $FOLD --node-aug\
-        --num-epochs 101 --batch-size 128 --num-workers $WORKERS  --weighted-sample --eval-freq 5\
+    python kat_train.py --cfg $CONFIG_FILE --fold $FOLD --node-aug\
+        --num-epochs 200 --batch-size 128 --num-workers $WORKERS  --weighted-sample --eval-freq 5\
         --dist-url 'tcp://localhost:10001' --multiprocessing-distributed --world-size $WORLD_SIZE --rank 0
 done
 
+```
+
+### Train KAT with kernel contrastive learning (KCL)
+In our extended work, we built a contrastive presentation learning module to the kernels for better accuracy and generalization. \
+Run katcl_train.py instead of kat_train.py if you want to use the contrastive learning module.
+
+Run on a single GPU:
+```
+python katcl_train.py --cfg $CONFIG_FILE --fold $FOLD \
+        --num-epochs 200 --batch-size 32 --num-workers $WORKERS  --weighted-sample\
+        --eval-freq 5 --gpu $GPU
+```
+
+Run on on multiple GPUs:
+```
+python katcl_train.py --cfg $CONFIG_FILE --fold $FOLD \
+        --num-epochs 200 --batch-size 128 --num-workers $WORKERS  --weighted-sample --eval-freq 5\
+        --dist-url 'tcp://localhost:10001' --multiprocessing-distributed --world-size $WORLD_SIZE --rank 0
 ```
 
 If the code is helpful to your research, please cite:
@@ -94,6 +112,7 @@ If the code is helpful to your research, please cite:
     title     = {Kernel Attention Transformer (KAT) for Histopathology Whole Slide Image Classification},
     booktitle = {Medical Image Computing and Computer Assisted Intervention 
                 -- MICCAI 2022},
+    pages     ={283--292},
     year      = {2022}
 }
 ```

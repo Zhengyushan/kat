@@ -124,7 +124,7 @@ class KernelWSILoader(torch.utils.data.Dataset):
         anchor_idx = wsi_data['k_idx'][self.nk_lvl]
 
         rd = wsi_data['rd'][anchor_idx[:anchor_num],:num_node]
-
+        rd /= wsi_data['down_factor']
         wsi_label = int(self.dl[idx][1][self.ti-1])
 
         if self.two:

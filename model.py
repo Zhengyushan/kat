@@ -185,7 +185,8 @@ class KATCL(nn.Module):
         self.online_kat = KAT(num_pk, patch_dim, num_classes, dim, depth, heads, mlp_dim, num_kernal, pool, dim_head, dropout, emb_dropout)
         self.online_projector = nn.Sequential(nn.Linear(dim, byol_hidden_dim, bias=False),
                                        nn.LayerNorm(byol_hidden_dim),
-                                       nn.ReLU(inplace=True),  # hidden layer
+                                       nn.GELU(), 
+                                       nn.Dropout(dropout),
                                        nn.Linear(byol_hidden_dim, byol_pred_dim))  # output layer
 
         # create the target encoder
@@ -201,7 +202,8 @@ class KATCL(nn.Module):
         # build a 2-layer predictor
         self.predictor = nn.Sequential(nn.Linear(byol_pred_dim, byol_hidden_dim, bias=False),
                                        nn.LayerNorm(byol_hidden_dim),
-                                       nn.ReLU(inplace=True),  # hidden layer
+                                       nn.GELU(), 
+                                       nn.Dropout(dropout),
                                        nn.Linear(byol_hidden_dim, byol_pred_dim))  # output layer
 
     @torch.no_grad()
@@ -214,31 +216,14 @@ class KATCL(nn.Module):
 
 
     def forward(self, x1, x2):
-        """
-        Input:
-            x1: first views of images
-            x2: second views of images
-        Output:
-            p1, p2, z1, z2: predictors and targets of the network
-            See Sec. 3 of https://arxiv.org/abs/2011.10566 for detailed notations
-        """
-
         # compute features for one view
         online_k1, o1 = kat_inference(self.online_kat, x1)  
-        online_k2, o2 = kat_inference(self.online_kat, x2)  
-        
         online_z1 = self.online_projector(torch.cat(online_k1, dim=1)) 
-        online_z2 = self.online_projector(torch.cat(online_k2, dim=1))  
-
         p1 = self.predictor(online_z1) 
-        p2 = self.predictor(online_z2) 
 
         with torch.no_grad():
             self._update_moving_average()
-            target_k1, _ = kat_inference(self.target_kat, x1)  
             target_k2, _ = kat_inference(self.target_kat, x2)  
+            target_z2 = self.target_projector(torch.cat(target_k2, dim=1)) 
             
-            target_z1 = self.target_projector(torch.cat(target_k1, dim=1)) 
-            target_z2 = self.target_projector(torch.cat(target_k2, dim=1))  
-
-        return p1, p2, o1, o2, target_z1.detach(), target_z2.detach()
+        return p1, o1, target_z2

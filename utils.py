@@ -7,6 +7,10 @@
 import os
 import pickle
 import math
+from sklearn.metrics import roc_auc_score, f1_score, confusion_matrix
+from tabulate import tabulate
+import numpy as np
+import torch
 
 # The definition of magnification of our gastic dataset.
 # 'Large':40X, 'Medium':20X, 'Small':10X, 'Overview':5X
@@ -238,3 +242,79 @@ def adjust_learning_rate(optimizer, init_lr, epoch, args):
             param_group['lr'] = init_lr
         else:
             param_group['lr'] = cur_lr
+
+def calc_classification_metrics(y_preds, y_labels, num_classes=None, prefix='Eval'):
+    if num_classes is None:
+        num_classes = max(y_labels) + 1
+
+    y_labels = y_labels.numpy()
+    y_preds = y_preds.numpy()
+
+    results = {}
+
+    results["m_f1"] = f1_score(y_labels, np.argmax(y_preds, axis=1), average='macro')
+    results["w_f1"] = f1_score(y_labels, np.argmax(y_preds, axis=1), average='weighted')
+    if num_classes < 3:
+        results["macro"] = roc_auc_score(y_labels, y_preds[:,1], average='macro', multi_class='ovo')
+        results["micro"] = roc_auc_score(y_labels, y_preds[:,1], average='weighted', multi_class='ovr')
+    else:
+        results["macro"] = roc_auc_score(y_labels, y_preds, average='macro', multi_class='ovo')
+        results["micro"] = roc_auc_score(y_labels, y_preds, average='weighted', multi_class='ovr')
+
+    confuse_mat = confusion_matrix(
+        y_labels, np.argmax(y_preds, axis=1))
+    confuse_mat = np.asarray(confuse_mat, float)
+
+    values = [prefix, results['micro'], results['macro'], results['w_f1'], results['m_f1']]
+    headers = ['Classification', 'weighted auc', 'macro auc', 'weighted f1', 'macro f1']
+    for y in range(max(y_labels)+1):
+        confuse_mat[y, :] = confuse_mat[y, :]/np.sum(y_labels == y)
+        values.append(confuse_mat[y, y])
+        headers.append(str(y))
+
+    print(tabulate([values,], headers, tablefmt="grid"))
+
+    return confuse_mat, results
+    
+
+def accuracy(output, target, topk=(1,2)):
+    """Computes the accuracy over the k top predictions for the specified values of k"""
+    with torch.no_grad():
+        maxk = max(topk)
+        batch_size = target.size(0)
+
+        _, pred = output.topk(maxk, 1, True, True)
+        pred = pred.t()
+        correct = pred.eq(target.view(1, -1).expand_as(pred))
+
+        res = []
+        for k in topk:
+            correct_k = correct[:k].reshape(-1).float().sum(0, keepdim=True)
+            res.append(correct_k.mul_(100.0 / batch_size))
+        return res
+
+def cosine_scheduler(base_value, final_value, epochs, niter_per_ep, warmup_epochs=0, start_warmup_value=0):
+    warmup_schedule = np.array([])
+    warmup_iters = warmup_epochs * niter_per_ep
+    if warmup_epochs > 0:
+        warmup_schedule = np.linspace(start_warmup_value, base_value, warmup_iters)
+
+    iters = np.arange(epochs * niter_per_ep - warmup_iters)
+    schedule = final_value + 0.5 * (base_value - final_value) * (1 + np.cos(np.pi * iters / len(iters)))
+
+    schedule = np.concatenate((warmup_schedule, schedule))
+    assert len(schedule) == epochs * niter_per_ep
+    return schedule
+
+def get_params_groups(model):
+    regularized = []
+    not_regularized = []
+    for name, param in model.named_parameters():
+        if not param.requires_grad:
+            continue
+        # we do not regularize biases nor Norm parameters
+        if name.endswith(".bias") or len(param.shape) == 1:
+            not_regularized.append(param)
+        else:
+            regularized.append(param)
+    return [{'params': regularized}, {'params': not_regularized, 'weight_decay': 0.}]

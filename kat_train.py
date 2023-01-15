@@ -19,8 +19,6 @@ import torch.backends.cudnn as cudnn
 import torch.multiprocessing as mp
 import torch.distributed as dist
 
-from tabulate import tabulate
-from sklearn.metrics import roc_auc_score, f1_score, confusion_matrix
 from model import KAT, kat_inference
 from loader import KernelWSILoader
 from loader import DistributedWeightedSampler
@@ -31,7 +29,7 @@ import builtins
 import warnings
 
 def arg_parse():
-    parser = argparse.ArgumentParser(description='GCN-Hash arguments.')
+    parser = argparse.ArgumentParser(description='KAT arguments.')
 
     parser.add_argument('--cfg', type=str,
             default='',
@@ -44,7 +42,7 @@ def arg_parse():
                         help='Number of epochs to train.')
     parser.add_argument('--num-workers', type=int, default=8,
                         help='Number of workers to load data.')
-    parser.add_argument('--lr', type=float, default=3e-4,
+    parser.add_argument('--lr', type=float, default=1e-4,
                         help='Learning rate.')
     parser.add_argument('--shuffle-train', default=False, action='store_true',
                         help='Shuffle the train list')
@@ -456,57 +454,6 @@ def evaluate(val_loader, model, criterion, args, prefix='Test'):
     confuse_mat, auc = calc_classification_metrics(y_preds, y_labels, args.num_classes, prefix=prefix)
 
     return top1.avg, confuse_mat, auc, {'pred':y_preds, 'label':y_labels}
-
-
-def calc_classification_metrics(y_preds, y_labels, num_classes=None, prefix='Eval'):
-    if num_classes is None:
-        num_classes = max(y_labels) + 1
-
-    y_labels = y_labels.numpy()
-    y_preds = y_preds.numpy()
-
-    results = {}
-
-    results["m_f1"] = f1_score(y_labels, np.argmax(y_preds, axis=1), average='macro')
-    results["w_f1"] = f1_score(y_labels, np.argmax(y_preds, axis=1), average='weighted')
-    if num_classes < 3:
-        results["macro"] = roc_auc_score(y_labels, y_preds[:,1], average='macro', multi_class='ovo')
-        results["micro"] = roc_auc_score(y_labels, y_preds[:,1], average='weighted', multi_class='ovr')
-    else:
-        results["macro"] = roc_auc_score(y_labels, y_preds, average='macro', multi_class='ovo')
-        results["micro"] = roc_auc_score(y_labels, y_preds, average='weighted', multi_class='ovr')
-
-    confuse_mat = confusion_matrix(
-        y_labels, np.argmax(y_preds, axis=1))
-    confuse_mat = np.asarray(confuse_mat, float)
-
-    values = [prefix, results['micro'], results['macro'], results['w_f1'], results['m_f1']]
-    headers = ['Classification', 'weighted auc', 'macro auc', 'weighted f1', 'macro f1']
-    for y in range(max(y_labels)+1):
-        confuse_mat[y, :] = confuse_mat[y, :]/np.sum(y_labels == y)
-        values.append(confuse_mat[y, y])
-        headers.append(str(y))
-
-    print(tabulate([values,], headers, tablefmt="grid"))
-
-    return confuse_mat, results
-
-
-def accuracy(output, target, topk=(1,2)):
-    """Computes the accuracy over the k top predictions for the specified values of k"""
-    with torch.no_grad():
-        maxk = max(topk)
-        batch_size = target.size(0)
-
-        _, pred = output.topk(maxk, 1, True, True)
-        pred = pred.t()
-        correct = pred.eq(target.view(1, -1).expand_as(pred))
-
-        res = []
-        for k in topk:
-            correct_k = correct[:k].reshape(-1).float().sum(0, keepdim=True)
-            res.append(correct_k.mul_(100.0 / batch_size))
-        return res
     
 
 if __name__ == "__main__":

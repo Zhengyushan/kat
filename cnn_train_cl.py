@@ -387,8 +387,8 @@ def train(train_loader, model, criterion, optimizer, epoch, args):
         # compute output
         p1, p2, z1, z2 = model(x1=images_one, x2=images_two)
         loss = -(criterion(p1, z2).mean() + criterion(p2, z1).mean()) * 0.5
-
         losses.update(loss.item(), images_one.size(0))
+
         # compute gradient and do SGD step
         optimizer.zero_grad()
         loss.backward()
@@ -426,7 +426,6 @@ def evaluate(loader, model, criterion, epoch, args):
             # compute output
             p1, p2, z1, z2 = model(x1=images_one, x2=images_two)
             loss = -(criterion(p1, z2).mean() + criterion(p2, z1).mean()) * 0.5
-
             losses.update(loss.item(), images_one.size(0))
 
             # measure elapsed time
