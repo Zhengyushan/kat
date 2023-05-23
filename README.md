@@ -1,6 +1,6 @@
 ## KAT: kernel attention Transformer for histopathology whole slide image classification
 
-This is a PyTorch implementation of the paper [KAT](https://arxiv.org/pdf/2206.13156.pdf):
+This is a PyTorch implementation of the paper [KAT](https://zhengyushan.github.io/pdf/article_zheng_tmi_2023.pdf):
 
 ### Data preparation
    
@@ -112,7 +112,14 @@ If the code is helpful to your research, please cite:
     title     = {Kernel Attention Transformer (KAT) for Histopathology Whole Slide Image Classification},
     booktitle = {Medical Image Computing and Computer Assisted Intervention 
                 -- MICCAI 2022},
-    pages     ={283--292},
+    pages     = {283--292},
     year      = {2022}
+}
+
+@article{zheng2023kernel,
+    author    = {Yushan Zheng, Jun Li, Jun Shi, Fengying Xie, Jianguo Huai, Ming Cao, Zhiguo Jiang},
+    title     = {Kernel Attention Transformer for Histopathology Whole Slide Image Analysis and Assistant Cancer Diagnosis},
+    journal   = {IEEE Transactions on Medical Imaging},
+    year      = {2023}
 }
 ```
